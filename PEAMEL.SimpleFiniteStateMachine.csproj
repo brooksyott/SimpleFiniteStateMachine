@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+    <AssemblyName>PeamelSimpleFiniteStateMachine</AssemblyName>
+    <RootNamespace>Peamel.SimpleFiniteStateMachine</RootNamespace>
+    <Version>0.1.2-alpha</Version>
+    <PackageProjectUrl>https://github.com/brooksyott/SimpleFiniteStateMachine</PackageProjectUrl>
+    <PackageTags>FSM, Finite State Machine, PEAMEL</PackageTags>
+    <PackageReleaseNotes>Initial prototype of a very simple finite state machine.</PackageReleaseNotes>
+    <Description>Initial prototype of a very simple finite state machine.
+
+</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Peamel.SimpleFiniteStateMachine</PackageId>
+    <Authors>Dave Brooks</Authors>
+    <Product>SimpleFiniteStateMachine</Product>
+    <Company>None</Company>
+  </PropertyGroup>
+
+</Project>
