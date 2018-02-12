@@ -44,7 +44,7 @@ namespace PhoneCallTest
 
         public PhoneCall(string caller)
         {
-            _log = BasicLoggerFactory.CreateLogger("c:\\temp\\phone.log");
+            _log = BasicLoggerFactory.CreateLogger("phone.log");
             _log.SetLogLevel(BASICLOGGERLEVELS.INFO);
 
             _caller = caller;
@@ -67,58 +67,21 @@ namespace PhoneCallTest
                 .OnEntry((t, k) => StartCallTimer())
                 .OnExit((t, k) => StopCallTimer())
                .Permit(Triggers.SetVolume, (volume, trigger) => OnSetVolume((int)volume))
-               .PermitIf(Triggers.MuteMicrophone, (t, k) => OnMute(), () => NotMuted())
+               .PermitIf(Triggers.MuteMicrophone, (t, k) => OnMute(), () => NotMutedGuard())
                .Permit(Triggers.UnmuteMicrophone, (t, k) => OnUnmute())
                .Permit(Triggers.Hangup, States.OnHook);
         }
 
         int _volume = 5;
-
-        Boolean OnSetVolume(int volume)
-        {
-            _volume = volume;
-            _log.Info(String.Format("Volume set to " + volume + "!"));
-            return true;
-        }
-
         Boolean _isMuted = false;
-        Boolean NotMuted()
-        {
-            _log.Info(String.Format("Microphone is muted = " + _isMuted));
-            return !_isMuted;
-        }
 
-        Boolean OnUnmute()
-        {
-            _log.Info(String.Format("Microphone unmuted!"));
-            _isMuted = false;
-            return true;
-        }
+        // Triggers set to the state machine
 
-        Boolean OnMute()
-        {
-            _log.Info(String.Format("Microphone muted!"));
-            _isMuted = true;
-            return true;
-        }
 
-        Boolean OnDialed(Object callee, Object trigger = null)
+        public void SetVolume(int volume)
         {
-            _callee = (string)callee;
-            _log.Info(String.Format("[Phone Call] placed from {0} to {1}", _caller, _callee));
-            return true;
-        }
-
-        Boolean StartCallTimer()
-        {
-            _log.Info(String.Format("[Timer:] Call started at {0}", DateTime.Now));
-            return true;
-        }
-
-        Boolean StopCallTimer()
-        {
-            _log.Info(String.Format("[Timer:] Call ended at {0}", DateTime.Now));
-            return true;
+            _log.Info("Firing Triggers.SetVolume " + volume);
+            _machine.Fire(Triggers.SetVolume, volume);
         }
 
         public void Mute()
@@ -133,15 +96,51 @@ namespace PhoneCallTest
             _machine.Fire(Triggers.UnmuteMicrophone);
         }
 
-        public void SetVolume(int volume)
+        // Actions called by the state machine
+
+        void OnSetVolume(int volume)
         {
-            _log.Info("Firing Triggers.SetVolume " + volume);
-            _machine.Fire(Triggers.SetVolume, volume);
+            _volume = volume;
+            _log.Info(String.Format("Volume set to " + volume + "!"));
         }
 
-        public void Print()
+        // This is a guard, must return true or false
+        Boolean NotMutedGuard()
         {
-            Console.WriteLine("[{1}] placed call and [Status:] {0}", _machine, _caller);
+            if (_isMuted)
+                _log.Info(String.Format("Microphone IS muted, guard will PREVENT muting again"));
+            else
+                _log.Info(String.Format("Microphone IS NOT muted, guard will ALLOW muting"));
+
+            return !_isMuted;
+        }
+
+        void OnUnmute()
+        {
+            _log.Info(String.Format("Microphone unmuted!"));
+            _isMuted = false;
+        }
+
+        void OnMute()
+        {
+            _log.Info(String.Format("Microphone muted!"));
+            _isMuted = true;
+        }
+
+        void OnDialed(Object callee, Object trigger = null)
+        {
+            _callee = (string)callee;
+            _log.Info(String.Format("[Phone Call] placed from {0} to {1}", _caller, _callee));
+        }
+
+        void StartCallTimer()
+        {
+            _log.Info(String.Format("[Timer:] Call started at {0}", DateTime.Now));
+        }
+
+        void StopCallTimer()
+        {
+            _log.Info(String.Format("[Timer:] Call ended at {0}", DateTime.Now));
         }
 
         public void TakeOffHook()
@@ -155,7 +154,6 @@ namespace PhoneCallTest
             _log.Info("Firing Triggers.HangUp ");
             _machine.Fire(Triggers.Hangup);
         }
-
 
         public void Dialed(string callee)
         {

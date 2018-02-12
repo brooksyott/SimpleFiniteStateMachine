@@ -10,10 +10,10 @@ namespace PhoneCallTest
     {
         static void Main(string[] args)
         {
-            PhoneCall phone = new PhoneCall("Brooksy");
+            PhoneCall phone = new PhoneCall("A Party");
 
             phone.TakeOffHook();
-            phone.Dialed("Holly");
+            phone.Dialed("B Party");
             phone.Connected();
             phone.SetVolume(8);
             phone.Mute();

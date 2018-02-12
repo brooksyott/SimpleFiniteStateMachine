@@ -7,23 +7,6 @@ using System.Threading.Tasks;
 
 namespace Peamel.SimpleFiniteStateMachine
 {
-    public class Transition<TStates, TTriggers>
-        where TTriggers : struct, IComparable, IFormattable, IConvertible
-        where TStates : struct, IComparable, IFormattable, IConvertible
-    {
-        public TTriggers Trigger { get; set; }
-        public TStates State { get; set; }
-        public Func<Boolean> Guard;
-    }
-
-    public class InternalTransition<TTriggers>
-         where TTriggers : struct, IComparable, IFormattable, IConvertible
-    {
-        public TTriggers Trigger { get; set; }
-        public Func<Object, TTriggers, Boolean> Exec;
-        public Func<Boolean> Guard;
-    }
-
     public class State<TStates, TTriggers>
         where TTriggers : struct, IComparable, IFormattable, IConvertible
         where TStates : struct, IComparable, IFormattable, IConvertible
@@ -38,8 +21,8 @@ namespace Peamel.SimpleFiniteStateMachine
         int _numberOfTriggers = 0;
         //Dictionary<Triggers, Func<Triggers, States>> _onEntryAction = new Dictionary<Triggers, Func<Triggers, States>>();
         //Dictionary<Triggers, Func<Triggers, States>> _onExitAction = new Dictionary<Triggers, Func<Triggers, States>>();
-        List<Func<Object, TTriggers, Boolean>> _onEntryAction = new List<Func<Object, TTriggers, Boolean>>();
-        List<Func<Object, TTriggers, Boolean>> _onExitAction = new List<Func<Object, TTriggers, Boolean>>();
+        List<Action<Object, TTriggers>> _onEntryAction = new List<Action<Object, TTriggers>>();
+        List<Action<Object, TTriggers>> _onExitAction = new List<Action<Object, TTriggers>>();
         List<InternalTransition<TTriggers>> _onSelfTriggerAction = new List<InternalTransition<TTriggers>>();
         List<Transition<TStates, TTriggers>> _transitions = new List<Transition<TStates, TTriggers>>();
 
@@ -65,7 +48,7 @@ namespace Peamel.SimpleFiniteStateMachine
             return new State<TStates, TTriggers>();
         }
 
-        public State<TStates, TTriggers> Permit(TTriggers trigger, Func<Object, TTriggers, Boolean> func)
+        public State<TStates, TTriggers> Permit(TTriggers trigger, Action<Object, TTriggers> func)
         {
             PermitIf(trigger, func, EmptyGuard);
             return this;
@@ -79,7 +62,7 @@ namespace Peamel.SimpleFiniteStateMachine
         /// <param name="func"></param>
         /// <returns></returns>
         //public State<TStates, TTriggers> Permit(TTriggers trigger, Func<Boolean> func)
-        public State<TStates, TTriggers> PermitIf(TTriggers trigger, Func<Object, TTriggers, Boolean> func, Func<Boolean> Guard)
+        public State<TStates, TTriggers> PermitIf(TTriggers trigger, Action<Object, TTriggers> func, Func<Boolean> Guard)
         {
             InternalTransition<TTriggers> tTransition = new InternalTransition<TTriggers>();
             tTransition.Trigger = trigger;
@@ -97,7 +80,7 @@ namespace Peamel.SimpleFiniteStateMachine
         /// <param name="trigger"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public State<TStates, TTriggers> OnEntry(Func<Object, TTriggers, Boolean> func)
+        public State<TStates, TTriggers> OnEntry(Action<Object, TTriggers> func)
         {
             _onEntryAction.Add(func);
             return this;
@@ -110,7 +93,7 @@ namespace Peamel.SimpleFiniteStateMachine
         /// <param name="trigger"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public State<TStates, TTriggers> OnExit(Func<Object, TTriggers, Boolean> func)
+        public State<TStates, TTriggers> OnExit(Action<Object, TTriggers> func)
         {
             _onExitAction.Add(func);
             return this;
@@ -123,7 +106,7 @@ namespace Peamel.SimpleFiniteStateMachine
         /// <returns></returns>
         public void EnteringState(TTriggers trigger, Object obj)
         {
-            foreach (Func<Object, TTriggers, Boolean> func in _onEntryAction)
+            foreach (Action<Object, TTriggers> func in _onEntryAction)
             {
                 func.Invoke(obj, trigger);
             }
@@ -136,7 +119,7 @@ namespace Peamel.SimpleFiniteStateMachine
         /// <returns></returns>
         public void ExitingState(TTriggers trigger, Object obj)
         {
-            foreach (Func<Object, TTriggers, Boolean> func in _onExitAction)
+            foreach (Action<Object, TTriggers> func in _onExitAction)
             {
                 func.Invoke(obj, trigger);
             }
@@ -192,7 +175,10 @@ namespace Peamel.SimpleFiniteStateMachine
                     {
                         Boolean guardPassed = trans.Guard.Invoke();
                         if (guardPassed)
-                            return trans.Exec.Invoke(obj, trigger);
+                        {
+                            trans.Exec.Invoke(obj, trigger);
+                            return true;
+                        }
                     }
                 }
             }
