@@ -39,7 +39,8 @@ namespace PhoneCallTest
         string _caller;
         string _callee;
         States _state = States.OnHook;
-        FiniteStateMachine<States, Triggers> _machine;
+        //FiniteStateMachine<States, Triggers> _machine;
+        FiniteStateMachineThreadSafe<States, Triggers> _machine;
         ILogger _log;
 
         public PhoneCall(string caller)
@@ -49,7 +50,8 @@ namespace PhoneCallTest
 
             _caller = caller;
 
-            _machine = new FiniteStateMachine<States, Triggers>(_state, _log);
+            //_machine = new FiniteStateMachine<States, Triggers>(_state, _log);
+            _machine = new FiniteStateMachineThreadSafe<States, Triggers>(_state, _log);
 
             _machine.Configure(States.OnHook)
                 .Permit(Triggers.TakeOffHook, States.OffHook);

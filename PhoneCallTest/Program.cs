@@ -20,6 +20,8 @@ namespace PhoneCallTest
             phone.Mute();
             phone.Unmute();
             phone.HangUp();
+            Console.WriteLine("Done");
+            Console.ReadKey();
         }
     }
 }
