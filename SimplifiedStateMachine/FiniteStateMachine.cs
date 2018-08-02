@@ -24,20 +24,20 @@ namespace Peamel.SimpleFiniteStateMachine
 
         override public Boolean Fire(TTriggers trigger, Object obj = null)
         {
-            _log.Debug(LoggerName, String.Format("Trigger Fired: State {0}, Trigger = {1}", _currentState, trigger));
+            _log.Debug(_tag, String.Format("Trigger Fired: State {0}, Trigger = {1}", _currentState, trigger));
             Boolean didTransition = TransitionStates(trigger, obj);
             if (didTransition)
             {
-                _log.Debug(LoggerName, "Transition Completed");
+                _log.Debug(_tag, "Transition Completed");
                 return true;
             }
 
             // If it didn't transition, it might be because it's an internal trigger event
-            _log.Debug(LoggerName, "No transition, trying InternalTransition");
+            _log.Debug(_tag, "No transition, trying InternalTransition");
             Boolean internalTransition = InternalTransition(trigger, obj);
             if (internalTransition)
             {
-                _log.Debug(LoggerName, "Internal Transition Completed");
+                _log.Debug(_tag, "Internal Transition Completed");
             }
 
             return internalTransition;

@@ -17,6 +17,7 @@ namespace PhoneCallTest
             phone.Connected();
             phone.SetVolume(8);
             phone.Mute();
+            phone.SetLogLevel(Peamel.BasicLogger.BASICLOGGERLEVELS.ERROR);
             phone.Mute();
             phone.Unmute();
             phone.HangUp();

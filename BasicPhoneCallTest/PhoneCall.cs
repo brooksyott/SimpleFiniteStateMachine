@@ -79,6 +79,10 @@ namespace PhoneCallTest
 
         // Triggers set to the state machine
 
+        public void SetLogLevel(BASICLOGGERLEVELS logLevel)
+        {
+            _log.SetLogLevel(logLevel);
+        }
 
         public void SetVolume(int volume)
         {
