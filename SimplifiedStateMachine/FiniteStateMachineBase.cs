@@ -14,7 +14,7 @@ namespace Peamel.SimpleFiniteStateMachine
         where TStates : struct, IComparable, IFormattable, IConvertible
     {
         protected ILogger _log;
-        protected BasicLoggerTag _tag = new BasicLoggerTag("FSM");
+        protected IBasicLoggerTag _tag = new BasicLoggerTag("SFSM");
 
         protected Dictionary<TStates, State<TStates, TTriggers>> _states = new Dictionary<TStates, State<TStates, TTriggers>>();
         protected TStates _currentState;
@@ -27,6 +27,7 @@ namespace Peamel.SimpleFiniteStateMachine
         public FiniteStateMachineBase(TStates startupState) 
         {
             _log = BasicLoggerFactory.GetLogger();
+            _log.SetLogLevel(BasicLoggerLogLevels.None, _tag);
             _currentState = startupState;
         }
 
@@ -34,6 +35,7 @@ namespace Peamel.SimpleFiniteStateMachine
         {
             _currentState = startupState;
             _log = logger;
+            _log.SetLogLevel(BasicLoggerLogLevels.None, _tag);
         }
 
         public void UpdateLogger(ILogger logger)
@@ -41,13 +43,18 @@ namespace Peamel.SimpleFiniteStateMachine
             _log = logger;
         }
 
-        public void UpdateLogger(ILogger logger, BasicLoggerTag tag)
+        public void UpdateLogger(ILogger logger, IBasicLoggerTag tag)
         {
             _log = logger;
             _tag = tag;
         }
 
         public void SetLogLevel(BASICLOGGERLEVELS level)
+        {
+            _log.SetLogLevel(level, _tag);
+        }
+
+        public void SetLogLevel(BasicLoggerLogLevels level)
         {
             _log.SetLogLevel(level, _tag);
         }

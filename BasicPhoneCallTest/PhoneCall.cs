@@ -46,7 +46,7 @@ namespace PhoneCallTest
         public PhoneCall(string caller)
         {
             _log = BasicLoggerFactory.CreateLogger("phone.log");
-            _log.SetLogLevel(BASICLOGGERLEVELS.INFO);
+            _log.SetLogLevel(BasicLoggerLogLevels.Information);
 
             _caller = caller;
 
@@ -79,9 +79,10 @@ namespace PhoneCallTest
 
         // Triggers set to the state machine
 
-        public void SetLogLevel(BASICLOGGERLEVELS logLevel)
+        public void SetLogLevel(BasicLoggerLogLevels logLevel)
         {
             _log.SetLogLevel(logLevel);
+            _machine.SetLogLevel(logLevel);
         }
 
         public void SetVolume(int volume)
